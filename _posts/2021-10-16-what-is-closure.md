@@ -10,7 +10,7 @@ toc_label: "목차"
 
 MDN Web Docs에 따르면, 클로저(closure)란 *함수와 함수가 선언된 어휘적 환경의 조합* 이다.
 
-더 쉽게 말하면, 클로져는 *함수 내에서 함수를 정의하고 사용하는 것이고, 이 때 정의된 함수는 만들어진 환경을 기억한다* 라고 할 수 있겠다. 클로저=함수+환경(Lexical environment)이라고 할까. 여기서 말하는 '환경' 이 무엇인지 이해하려면, 먼저 Lexical scoping에 대해 알아야 한다. 
+더 쉽게 말하면, 클로져는 *함수 내에서 함수를 정의하고 사용하는 것이고, 이 때 정의된 함수는 만들어진 환경을 기억한다* 라고 할 수 있다. 클로저=함수+환경(Lexical environment)이라고 할까. 여기서 말하는 '환경' 이 무엇인지 이해하려면, 먼저 Lexical scoping에 대해 알아야 한다. 
 
 
 ## Lexical scoping
@@ -28,7 +28,7 @@ function init() {
   init();
 ```
 
-이 경우, displayName()은 "Mozilla" 라는 메시지를 alert한다. displayName()은 init()안에서만 사용될 수 있는 내부 함수이다. displayName()은 부모 함수 init()에서 선언된 변수 name에 접근해 alert를 실행할 수 있다. 그렇다면 아래와 같은 경우에는 어떨까? 
+이 경우, displayName()은 "Mozilla" 라는 메시지를 alert한다. displayName()은 init()안에서만 사용될 수 있는 내부 함수로, 부모 함수 init()에서 선언된 변수 name에 접근해 alert를 실행할 수 있다. 그렇다면 아래와 같은 경우에는 어떨까? 
 
 ```javascript
 function init() {
@@ -41,7 +41,7 @@ function init() {
   }
   init();
 ```
-이 경우, displayName()은 "Look at me!" 라는 메시지를 alert한다. Lexical scoping이란,위 예시들과 같이 파서가 변수를 처리하는 과정에서 변수가 어디에서 호출되었는지가 아니라 '코드 내 어디에서 선언되었는지' 를 고려하여 처리하는 것을 의미한다. 
+이 경우, displayName()은 "Look at me!" 라는 메시지를 alert한다. 왜 위 코드와 다른 결과가 나왔을까? name 변수가 displayName()내부에서 다른 값으로 다시 선언되었기 때문이다. Lexical scoping이란,이와 같이 파서가 변수를 처리하는 과정에서 변수가 어디에서 호출되었는지가 아니라 '코드 내 어디에서 선언되었는지' 를 고려하여 처리하는 것을 의미한다. 
 
 그럼 아래와 같은 경우는 어떨까?
 
@@ -81,7 +81,7 @@ function foo() {
 var baz = foo(); // 3
 baz(); // 4
 ```
-1. bar는 color를 찾아 출력하는 함수로 정의되었다.
+1. bar는 color를 출력하는 함수로 정의되었다.
 2. bar는 outer environment 참조로 foo의 environment를 저장했다.
 3. global에서 baz(=bar)를 호출했다.
 4. bar는 자신의 스코프에서 color를 찾는다.
@@ -107,7 +107,7 @@ count();
 ```
 놀랍게도 1,2,3,4,...9가 0.1초마다 출력되는 대신, 10이 9번 출력된다. 앞선 예제와 같이 코드에서 벌어지는 일을 해석해 보자.
 
-1. timer는 i를 찾아 출력하는 함수로 정의되었다.
+1. timer는 i를 출력하는 함수로 정의되었다.
 2. timer는 outer environment 참조로 count의 environment를 저장했다.
 3. setTimeout으로 인한 0.1초의 대기시간이 지날 동안, for문이 종료되고 i = 10이 된다. 
 4. 첫 0.1초가 지나고 timer가 호출된다.
