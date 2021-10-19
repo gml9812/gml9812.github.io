@@ -1,5 +1,6 @@
 ---
 title: "클로저란 무엇인가?"
+last_modified_at: 2021-10-18T16:20:02-05:00
 categories:
   - FrontEnd
 tags:
@@ -135,6 +136,8 @@ count();
  ```
 위 코드에서, timer는 outer environment 참조로 즉시 실행 함수(IIFE)의 environment를 참조한다. timer는 IIFE의 스코프에서 i의 값이 저장된 countingNumber를 찾아 출력한다. 
 
+두 번째로, var 대신 let을 사용할 수 있다.
+
 ```javascript 
  function count() {
      'use strict';
@@ -146,36 +149,35 @@ count();
  }
  count();
  ```
-위 코드에서는 var 대신 let이 사용되었다. var는 함수 레벨 스코프를 따르지만, let은 블록 레벨 스코프를 따른다. 따라서, 위 코드에서 i는 for 루프의 코드 블록 내에서만 유효한 변수이다. 
-<-- 추가 설명 -->
+위 코드에서는 var 대신 let이 사용되었다. var는 함수 레벨 스코프를 따르지만, let은 블록 레벨 스코프를 따른다. var를 사용했을 때, i의 스코프는 count()함수 내부가 된다. 그러나 let을 사용했을 때, i의 스코프는 for문 내부가 된다. 
+
+달리 말해, for문이 돌면서 i=0인 스코프, i=1인 스코프, i=2인 스코프...를 생성하고, timer()가 실행될 시 각각 해당하는 스코프에서 i를 찾아 출력하기에 1~9가 출력된다. 
 
 ## 성능 관련 고려 사항
 
-각각의 클로저는 환경을 기억한다. 달리 말하면, 메모리가 소모된다는 뜻이다. 클로저를 생성하고 참조를 제거하지 않는 건 C++에서 동적할당으로 생성한 객체를 delete하지 않는 것과 유사하다.  
+각각의 클로저는 환경을 기억한다. 그 말은 메모리가 소모된다는 뜻이다. C++에서 동적 할당으로 생성한 객체를 delete하듯이, 사용이 끝난 클로저는 아래와 같이 참조를 제거해야 한다. 
 
 ```javascript
-function hello(name) {
+function myName(name) {
   var _name = name;
   return function() {
-    console.log('Hello, ' + _name);
+    console.log('my name is ' + _name);
   };
 }
 
-var hello1 = hello('승민');
-var hello2 = hello('현섭');
-var hello3 = hello('유근');
+var myName1 = myName('철수');
+var myName2 = myName('영희');
 
-hello1(); // 'Hello, 승민'
-hello2(); // 'Hello, 현섭'
-hello3(); // 'Hello, 유근'
+myName1(); // 'my name is 철수'
+myName2(); // 'my name is 영희'
 
-// 여기서 메모리를 release 시키기 클로저의 참조를 제거해야 한다.
-hello1 = null;
-hello2 = null;
-hello3 = null;
+// 메모리 release
+myName1 = null;
+myName2 = null;
 ```
 
 참고: 
 - https://ljtaek2.tistory.com/145
 - https://developer.mozilla.org/ko/docs/Web/JavaScript/Closures
 - https://meetup.toast.com/posts/86
+- https://velog.io/@yonyas/Javascript-for
