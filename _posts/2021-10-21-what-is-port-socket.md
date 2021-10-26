@@ -43,10 +43,5 @@ UDP 소켓의 경우, 목적지 IP주소와 목적지 포트번호 2개의 튜�
 
 
 
-
-
-
-
-
 참고: 
 - https://blog.naver.com/PostView.nhn?blogId=myca11&logNo=221389847130&categoryNo=24&parentCategoryNo=0&viewDate=&currentPage=1&postListTopCurrentPage=1&from=postView
