@@ -18,42 +18,7 @@ toc_label: "목차"
 
 React Hook을 배울 당시 useState는 state 변수와 해당 변수를 갱신할 수 있는 함수를 만들어 주는 Hook, useEffect는 dep 안에 들어 있는 state들이 변할 때마다 effect를 실행해 주는 Hook, 정도로만 이해하고 넘어갔었다. 이제는 좀 더 깊은 이해가 필요한 시점이라는 생각이 들어 포스팅을 작성하게 되었다.
 
-## useState
-
-### useState에서 반환된 함수 setState()를 사용해 state를 변경한 다음 console.log(state)를 하면 변경 전의 값이 출력된다.
-
-아래 코드를 실행하면 어떤 일이 벌어질까?
-
-```javascript
-const [movie, setMovie] = useState("Avatar");
-
-useEffect(() => {
-  console.log(movie);
-  setMovie("Star wars");
-  console.log(movie);
-}, []);
-```
-
-'Avatar', 'Star wars'가 아니라, 'Avatar', 'Avatar' 가 출력된다. 이는
-
-### useState에서 반환된 함수 setState()를 연속으로 사용할 경우, 마지막으로 사용한 setState만이 반영된다.
-
-아래와 같은 코드를 실행하면 화면에는 어떤 숫자가 나타날까?
-
-```javascript
-const [count, setCount] = useState(2);
-// ...
-function someFunction() {
-  setCount(count * 3);
-  setCount(count - 1);
-}
-// ...
-return <div>{count}</div>;
-```
-
-2 \* 3 - 1 = 5가 나타나는 대신, 2 - 1 = 1이 나타난다. setCount를 아무리 연속해서 사용해 보아도 맨 마지막으로 사용한 setCount만 적용되는 것을 확인할 수 있다.
-
-이 현상을 이해하기 위해서는 useState의 특성을 먼저 이해해야만 한다.
+설명의 편의성을 위해 useEffect를 먼저 알아본 뒤, useState로 넘어가도록 하자.
 
 ## useEffect
 
@@ -181,6 +146,100 @@ function Example() {
   });
   // ...
 ```
+
+## useState
+
+### useState에서 반환된 함수 setState()를 사용해 state를 변경한 다음 console.log(state)를 하면 변경 전의 값이 출력된다.
+
+아래 코드를 실행하면 어떤 일이 벌어질까?
+
+```javascript
+const [movie, setMovie] = useState("Avatar");
+
+useEffect(() => {
+  console.log(movie);
+  setMovie("Star wars");
+  console.log(movie);
+}, []);
+```
+
+'Avatar', 'Star wars'가 아니라, 'Avatar', 'Avatar' 가 출력된다. 위에서도 설명했듯 **React 함수 컴포넌트는 클로저와 유사한 방식으로 동작**하기 때문에 이런 현상이 일어난다.
+
+setMovie()는 현재 렌더의 movie를 바꾸는 함수가 아니라, 다음 렌더의 movie 값을 바꾸는 함수다. setMovie 직후에 console.log(movie)를 한다 해도, console.log()함수는 현재 렌더의 movie 값, 즉 'Avatar'를 출력한다.
+
+만약 특정 state가 바뀔 때마다 해당 state를 출력하고 싶다면, 아래와 같이 useEffect를 사용해야 한다.
+
+```javascript
+useEffect(() => {
+  console.log(movie);
+}, [movie]);
+```
+
+### useState에서 반환된 함수 setState()를 연속으로 사용할 경우, 마지막으로 사용한 setState만이 반영된다.
+
+아래와 같은 코드를 실행하면 화면에는 어떤 숫자가 나타날까?
+
+```javascript
+const [count, setCount] = useState(2);
+// ...
+function someFunction() {
+  setCount(count * 3);
+  setCount(count - 1);
+}
+// ...
+return <div>{count}</div>;
+```
+
+2 \* 3 - 1 = 5가 나타나는 대신, 2 - 1 = 1이 나타난다. setCount를 아무리 연속해서 사용해 보아도 맨 마지막으로 사용한 setCount만 적용되는 것을 확인할 수 있다.
+
+React 내부적으로 setState() 함수는 **비동기적으로** 처리된다. setState()를 사용할 시 React는 즉각적으로 새로운 state를 반영해 렌더링을 다시 진행하는 것이 아니라, 일단은 setState()를 큐 안에 보관한 다음, 다른 필요한 작업을 전부 처리하고 setState를 수행한다.
+
+그런데 위에서 우리는 **React 함수 컴포넌트는 클로저와 유사한 방식으로 동작한다** 는 사실을 배웠다. 위 예제에서는 count = 2로 설정되어 있으니,
+
+setCount(count - 3); 에서 count가 2 - 3 = 6으로 설정되고,
+setCount(count - 1); 에서 count가 2 - 1 = 1로 다시 설정되어, 결국 마지막 setCount만 반영되는 효과가 나오는 것이다.
+
+함수 형태의 업데이터를 setCount에 전달해 주면 이런 문제를 해결할 수 있다. 예를 들어 아래와 같은 코드를 사용하면,
+
+```javascript
+const [count, setCount] = useState(2);
+// ...
+function someFunction() {
+  setCount((c) => c * 3);
+  setCount((c) => c - 1);
+}
+// ...
+return <div>{count}</div>;
+```
+
+1. 큐 안에 setCount((c) => c \* 3), setCount((c) => c - 1) 이 있다.
+2. setCount((c) => c \- 3)이 처리되며 (c) => c - 3이 큐 안으로 들어간다, 즉 큐 안에 setCount((c) => c - 1), (c) => c \* 3이 있게 된다.
+3. setCount((c) => c - 1)이 처리되며 (c) => c - 1이 큐 안으로 들어간다, 즉 큐 안에 (c) => c \* 3, (c) => c - 1이 있게 된다.
+4. (c) => c \* 3이 처리된 후, (c) => c - 1이 처리된다.
+
+라는 과정을 거쳐, 5가 화면에 출력되는 것을 확인할 수 있다.
+
+그럼 아래와 같은 상황에서는 어떤 결과가 나올 지 예상해 볼 수 있을까?
+
+```javascript
+const [count, setCount] = useState(2);
+// ...
+function someFunction() {
+  setCount(count * 3);
+  setCount((c) => c + 3);
+  setCount(count - 1);
+  setCount((c) => c + 2);
+}
+// ...
+return <div>{count}</div>;
+```
+
+1. 큐 안에 setCount(count \* 3), setCount((c) => c + 3), setCount(count - 1), setCount((c) => c + 2)이 있다.
+2. 큐의 세 번째 항목인 setCount(count - 1)이 실행되는 순간, 이전의 state가 어땠는지는 상관없이 count는 2 - 1 = 1로 바뀐다.
+3. setCount((c) => c \+ 2)이 처리되며 (c) => c + 2이 큐 안으로 들어간다, 즉 큐 안에 (c) => c \+ 2이 있게 된다.
+4. (c) => c \+ 2 가 처리된다.
+
+따라서 3이 화면에 출력된다.
 
 참고:
 
